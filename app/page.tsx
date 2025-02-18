@@ -1,101 +1,134 @@
-import Image from "next/image";
+'use client';
+
+import { useState } from 'react';
+import { useTheme } from 'next-themes';
+import { AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { X, Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { TooltipProvider } from '@/components/ui/tooltip';
+import { Note, noteSchema } from '@/lib/types';
+import NoteEditor from '@/components/notes/NoteEditor';
+import EmptyState from '@/components/notes/EmptyState';
+import * as z from 'zod';
+import Sidebar from '@/components/sidebar';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(
+    null
+  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isCreatingNewNote, setIsCreatingNewNote] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { theme, setTheme } = useTheme();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const selectedNote: Note | null = selectedNoteId
+    ? notes.find((note) => note.id === selectedNoteId) || null
+    : null;
+
+  const createNote = () => {
+    setSelectedNoteId(null);
+    setIsCreatingNewNote(true);
+  };
+
+  const saveNote = (values: z.infer<typeof noteSchema>) => {
+    if (isCreatingNewNote) {
+      const newNote: Note = {
+        id: crypto.randomUUID(),
+        title: values.title,
+        content: values.content,
+        created_at: new Date().toISOString(),
+      };
+      setNotes((prev) => [newNote, ...prev]);
+      setSelectedNoteId(newNote.id);
+      setIsCreatingNewNote(false);
+      toast.success('Note created successfully', {
+        position: 'bottom-right',
+      });
+    } else if (selectedNoteId) {
+      setNotes((prev) =>
+        prev.map((note) =>
+          note.id === selectedNoteId
+            ? {
+                ...note,
+                title: values.title,
+                content: values.content,
+              }
+            : note
+        )
+      );
+      toast.success('Note updated successfully', {
+        position: 'bottom-right',
+      });
+    }
+  };
+
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      note.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <TooltipProvider>
+      <div className="flex h-screen bg-background overflow-hidden">
+        {/* Sidebar Toggle Button (Mobile) */}
+        <div className="md:hidden absolute top-4 left-4 z-50">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="rounded-full">
+            {sidebarOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
+          </Button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        {/* Sidebar */}
+        <AnimatePresence>
+          {sidebarOpen && (
+            <Sidebar
+              notes={filteredNotes}
+              selectedNoteId={selectedNoteId}
+              setSelectedNoteId={setSelectedNoteId}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              createNote={createNote}
+              isCreatingNewNote={isCreatingNewNote}
+              setSidebarOpen={setSidebarOpen}
+              setIsCreatingNewNote={setIsCreatingNewNote}
+              theme={theme}
+              setTheme={setTheme}
+            />
+          )}
+        </AnimatePresence>
+
+        {/* Main Content */}
+        <div
+          className={cn(
+            'flex-1 overflow-auto transition-all duration-200 p-10',
+            sidebarOpen ? 'md:ml-80' : 'ml-0'
+          )}>
+          <AnimatePresence mode="wait">
+            {isCreatingNewNote || selectedNote ? (
+              <NoteEditor
+                selectedNote={selectedNote}
+                isCreatingNewNote={isCreatingNewNote}
+                setIsCreatingNewNote={setIsCreatingNewNote}
+                setSelectedNoteId={setSelectedNoteId}
+                onSave={saveNote}
+              />
+            ) : (
+              <EmptyState createNote={createNote} />
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </TooltipProvider>
   );
 }
