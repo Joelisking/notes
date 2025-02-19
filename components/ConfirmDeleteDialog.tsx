@@ -8,19 +8,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Props {
   isDeleteDialogOpen: boolean;
   handleDelete: () => Promise<void>;
   setIsDeleteDialogOpen: Dispatch<SetStateAction<boolean>>;
+  loading: boolean; // New prop for deletion loading state
 }
 
 function ConfirmDeleteDialog({
   isDeleteDialogOpen,
   setIsDeleteDialogOpen,
   handleDelete,
+  loading,
 }: Props) {
   return (
     <Dialog
@@ -48,7 +50,13 @@ function ConfirmDeleteDialog({
             onClick={() => setIsDeleteDialogOpen(false)}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={handleDelete}>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={loading}>
+            {loading && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Delete
           </Button>
         </DialogFooter>

@@ -15,8 +15,9 @@ interface NoteEditorProps {
   isCreatingNewNote: boolean;
   setIsCreatingNewNote: (creating: boolean) => void;
   setSelectedNoteId: (id: string | null) => void;
-  onSave: (values: INote) => void;
-  setIsDeleteDialogOpen: (creating: boolean) => void;
+  onSave: (values: INote) => Promise<void>;
+  setIsDeleteDialogOpen: (open: boolean) => void;
+  onDelete: (id: string) => void;
 }
 
 const NoteEditor = ({
@@ -25,8 +26,10 @@ const NoteEditor = ({
   setIsCreatingNewNote,
   setSelectedNoteId,
   onSave,
+  onDelete,
 }: NoteEditorProps) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<NoteInput>({
     resolver: zodResolver(noteSchema),
     defaultValues: { title: '', content: '' },
@@ -42,13 +45,22 @@ const NoteEditor = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNote, isCreatingNewNote]);
 
-  const onSubmit = (values: NoteRequestDto) => {
-    onSave({
-      id: selectedNote ? selectedNote.id : '',
-      ...values,
-      created_at: selectedNote ? selectedNote.created_at : new Date(),
-    });
-    setIsEditing(false);
+  const onSubmit = async (values: NoteRequestDto) => {
+    setIsSubmitting(true);
+    try {
+      await onSave({
+        id: selectedNote ? selectedNote.id : '',
+        ...values,
+        created_at: selectedNote
+          ? selectedNote.created_at
+          : new Date(),
+      });
+      setIsEditing(false);
+    } catch (error) {
+      console.error('Error while saving note:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,6 +92,8 @@ const NoteEditor = ({
                 isCreatingNewNote={isCreatingNewNote}
                 setIsCreatingNewNote={setIsCreatingNewNote}
                 setSelectedNoteId={setSelectedNoteId}
+                onDelete={onDelete}
+                loading={isSubmitting}
               />
             </div>
           </div>

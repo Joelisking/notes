@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { X, Save, Edit } from 'lucide-react';
+import { X, Save, Edit, Loader2 } from 'lucide-react';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import ConfirmDeleteDialog from '../ConfirmDeleteDialog';
@@ -14,6 +14,8 @@ interface Props {
   setIsEditing: Dispatch<SetStateAction<boolean>>;
   setIsCreatingNewNote: (creating: boolean) => void;
   setSelectedNoteId: (id: string | null) => void;
+  onDelete: (id: string) => void;
+  loading: boolean;
 }
 
 const NoteActions = ({
@@ -24,13 +26,20 @@ const NoteActions = ({
   isCreatingNewNote,
   setIsCreatingNewNote,
   setSelectedNoteId,
+  onDelete,
+  loading,
 }: Props) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleDelete = async () => {
     if (!selectedNote) return;
     try {
+      setIsDeleting(true);
       const data = await deleteNote(selectedNote.id);
       if (data.success) {
+        // Update the local state to remove the deleted note.
+        onDelete(selectedNote.id);
         setSelectedNoteId(null);
       } else {
         alert('Failed to delete note: ' + data.error);
@@ -39,6 +48,7 @@ const NoteActions = ({
       alert('Error deleting note');
       console.error('Error:', error);
     } finally {
+      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
     }
   };
@@ -58,8 +68,20 @@ const NoteActions = ({
               }}>
               <X className="h-4 w-4 mr-2" /> Cancel
             </Button>
-            <Button type="submit" className="rounded-lg">
-              <Save className="h-4 w-4 mr-2" /> Save
+            <Button
+              type="submit"
+              className="rounded-lg"
+              disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />{' '}
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" /> Create
+                </>
+              )}
             </Button>
           </>
         ) : selectedNote ? (
@@ -75,8 +97,20 @@ const NoteActions = ({
                 }}>
                 <X className="h-4 w-4 mr-2" /> Cancel
               </Button>
-              <Button type="submit" className="rounded-lg">
-                <Save className="h-4 w-4 mr-2" /> Save
+              <Button
+                type="submit"
+                className="rounded-lg"
+                disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />{' '}
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" /> Save
+                  </>
+                )}
               </Button>
             </>
           ) : (
@@ -85,6 +119,7 @@ const NoteActions = ({
                 handleDelete={handleDelete}
                 isDeleteDialogOpen={isDeleteDialogOpen}
                 setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+                loading={isDeleting}
               />
               <Button
                 type="button"

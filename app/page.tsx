@@ -104,7 +104,15 @@ export default function Home() {
     }
   };
 
-  const handleSaveNote = (values: z.infer<typeof noteSchema>) => {
+  const handleDeleteNote = (deletedNoteId: string) => {
+    setNotes((prev) =>
+      prev.filter((note) => note.id !== deletedNoteId)
+    );
+  };
+
+  const handleSaveNote = async (
+    values: z.infer<typeof noteSchema>
+  ): Promise<void> => {
     if (isCreatingNewNote) {
       createNote(values);
     } else if (selectedNoteId) {
@@ -118,6 +126,11 @@ export default function Home() {
         setLoading(true);
         const data = await getNotes();
         setNotes(data);
+      } catch (error) {
+        toast.error('An error occurred while loading the notes', {
+          position: 'bottom-right',
+        });
+        console.error('Error loading notes:', error);
       } finally {
         setLoading(false);
       }
@@ -185,6 +198,7 @@ export default function Home() {
                 setSelectedNoteId={setSelectedNoteId}
                 onSave={handleSaveNote}
                 setIsDeleteDialogOpen={() => {}}
+                onDelete={handleDeleteNote}
               />
             ) : (
               <EmptyState createNote={createEmptyNote} />
