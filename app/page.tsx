@@ -136,16 +136,16 @@ export default function Home() {
     <TooltipProvider>
       <div className="flex h-screen bg-background overflow-hidden">
         {/* Sidebar Toggle Button (Mobile) */}
-        <div className="md:hidden absolute top-4 left-4 z-50">
+        <div className="absolute top-2 md:top-6 left-2 z-50">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="rounded-full">
+            className={cn('rounded-full', sidebarOpen && 'hidden')}>
             {sidebarOpen ? (
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 text-foreground hidden" />
             ) : (
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5 text-foreground" />
             )}
           </Button>
         </div>
@@ -173,7 +173,7 @@ export default function Home() {
         {/* Main Content */}
         <div
           className={cn(
-            'flex-1 overflow-auto transition-all duration-200 p-4 md:p-10',
+            'flex-1 overflow-auto transition-all duration-200 px-6 py-16 md:py-6 md:px-14',
             sidebarOpen ? 'md:ml-80' : 'ml-0'
           )}>
           <AnimatePresence mode="wait">

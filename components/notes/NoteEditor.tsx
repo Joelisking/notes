@@ -64,20 +64,24 @@ const NoteEditor = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="h-full flex flex-col">
           <div className="flex flex-col md:flex-row items-start md:items-center border-b border-border">
-            <NoteTitleField
-              form={form}
-              isEditing={isEditing}
-              isCreatingNewNote={isCreatingNewNote}
-            />
-            <NoteActions
-              form={form}
-              selectedNote={selectedNote}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              isCreatingNewNote={isCreatingNewNote}
-              setIsCreatingNewNote={setIsCreatingNewNote}
-              setSelectedNoteId={setSelectedNoteId}
-            />
+            <div className="w-full mt-3 md:mt-0 md:mr-4">
+              <NoteTitleField
+                form={form}
+                isEditing={isEditing}
+                isCreatingNewNote={isCreatingNewNote}
+              />
+            </div>
+            <div className="w-full md:w-auto flex justify-center">
+              <NoteActions
+                form={form}
+                selectedNote={selectedNote}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                isCreatingNewNote={isCreatingNewNote}
+                setIsCreatingNewNote={setIsCreatingNewNote}
+                setSelectedNoteId={setSelectedNoteId}
+              />
+            </div>
           </div>
           <NoteContentField
             form={form}

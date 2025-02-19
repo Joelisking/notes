@@ -24,7 +24,7 @@ const NoteTitleField = ({
     control={form.control}
     name="title"
     render={({ field }) => (
-      <FormItem className="flex-1 mr-4 px-3">
+      <FormItem className="flex-1 px-3">
         <FormControl>
           <Input
             placeholder="Note Title"

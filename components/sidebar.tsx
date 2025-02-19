@@ -61,14 +61,20 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <motion.div
-      initial={{ x: '-100%', opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ x: '-100%', opacity: 0 }}
+      initial={{ width: 0, opacity: 0 }}
+      animate={{ width: 320, opacity: 1 }}
+      exit={{ width: 0, opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed md:relative inset-y-0 left-0 z-50 w-64 md:w-80 bg-card/30 bg-background flex flex-col shadow-lg md:shadow-none">
+      className="h-full border-r bg-card/30 backdrop-blur-lg z-30 flex flex-col shadow-lg md:shadow-none"
+      style={{
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+      }}>
       {/* Header */}
       <div className="p-6 border-b flex items-center justify-between">
-        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+        <h1 className="text-2xl md:text-3xl font-bold text-primary">
           My Notes
         </h1>
         <div className="flex items-center space-x-2">
@@ -122,7 +128,7 @@ export default function Sidebar({
             variant="ghost"
             size="icon"
             onClick={() => setSidebarOpen(false)}
-            className="md:hidden rounded-full">
+            className="rounded-full">
             <X className="h-5 w-5" />
           </Button>
         </div>
@@ -152,7 +158,7 @@ export default function Sidebar({
       </div>
 
       {/* Notes List */}
-      <ScrollArea className="flex-1 pt-6 pr-4">
+      <ScrollArea className="flex-1 pt-6">
         {loading ? (
           <div className="p-4 text-center text-muted-foreground flex justify-center">
             <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
