@@ -1,4 +1,3 @@
-'use client';
 import { motion } from 'framer-motion';
 import {
   DropdownMenu,
@@ -27,6 +26,7 @@ import {
   Check,
   Laptop,
   Loader2,
+  X,
 } from 'lucide-react';
 import { INote } from '@/types';
 import { getWordCount } from '@/utils/helpers';
@@ -61,27 +61,21 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <motion.div
-      initial={{ width: 0, opacity: 0 }}
-      animate={{ width: 320, opacity: 1 }}
-      exit={{ width: 0, opacity: 0 }}
+      initial={{ x: '-100%', opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: '-100%', opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="h-full border-r bg-card/30 backdrop-blur-md z-10 flex flex-col shadow-lg md:shadow-none"
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 10,
-      }}>
-      <div className="p-6 border-b">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className=" text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-            My Notes
-          </h1>
+      className="fixed md:relative inset-y-0 left-0 z-50 w-64 md:w-80 bg-card/30 bg-background flex flex-col shadow-lg md:shadow-none">
+      {/* Header */}
+      <div className="p-6 border-b flex items-center justify-between">
+        <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          My Notes
+        </h1>
+        <div className="flex items-center space-x-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" className="rounded-full">
-                <Settings className="h-5 w-5" />
+                <Settings className="h-5 w-5 text-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -123,14 +117,28 @@ export default function Sidebar({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* Mobile Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setSidebarOpen(false)}
+            className="md:hidden rounded-full">
+            <X className="h-5 w-5" />
+          </Button>
         </div>
+      </div>
+
+      {/* New Note Button */}
+      <div className="p-6 border-b">
         <Button
-          className="w-full rounded-full group transition-all hover:shadow-md hover:shadow-primary/20"
+          className="w-full rounded-full group transition-all hover:shadow-md hover:shadow-primary/20 text-foreground"
           onClick={createNote}>
           <Plus className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
           New Note
         </Button>
       </div>
+
+      {/* Search */}
       <div className="p-4 border-b">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -142,7 +150,9 @@ export default function Sidebar({
           />
         </div>
       </div>
-      <ScrollArea className="flex-1">
+
+      {/* Notes List */}
+      <ScrollArea className="flex-1 pt-6 pr-4">
         {loading ? (
           <div className="p-4 text-center text-muted-foreground flex justify-center">
             <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />

@@ -29,7 +29,7 @@ const NoteTitleField = ({
           <Input
             placeholder="Note Title"
             className={cn(
-              'font-semibold text-4xl border-none shadow-none focus-visible:ring-0 h-12 px-4 rounded-lg bg-input transition-colors duration-300',
+              'font-semibold text-2xl md:text-4xl border-none shadow-none focus-visible:ring-0 h-12 px-4 rounded-lg bg-input transition-colors duration-300',
               !isEditing && 'bg-transparent cursor-text',
               isCreatingNewNote && 'bg-input'
             )}

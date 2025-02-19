@@ -29,7 +29,8 @@ const NoteContentField = ({
           <Textarea
             placeholder="Start typing your note here..."
             className={cn(
-              'w-full h-full text-xl resize-none border-none shadow-none focus-visible:ring-0 rounded-lg p-4 bg-input transition-colors duration-300',
+              'w-full h-full resize-none border-none shadow-none focus-visible:ring-0 rounded-lg p-4 bg-input transition-colors duration-300',
+              'text-base md:text-xl',
               !isEditing && 'bg-transparent cursor-text',
               isCreatingNewNote && 'bg-input'
             )}

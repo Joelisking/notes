@@ -1,5 +1,4 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { AnimatePresence } from 'framer-motion';
@@ -69,7 +68,6 @@ export default function Home() {
   const updateNote = async (values: z.infer<typeof noteSchema>) => {
     try {
       if (!selectedNoteId) return;
-      console.log('Selected Note Id::', selectedNoteId);
       const updatedData = {
         title: values.title,
         content: values.content,
@@ -175,7 +173,7 @@ export default function Home() {
         {/* Main Content */}
         <div
           className={cn(
-            'flex-1 overflow-auto transition-all duration-200 p-10',
+            'flex-1 overflow-auto transition-all duration-200 p-4 md:p-10',
             sidebarOpen ? 'md:ml-80' : 'ml-0'
           )}>
           <AnimatePresence mode="wait">

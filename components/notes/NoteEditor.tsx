@@ -1,10 +1,8 @@
 import { motion } from 'framer-motion';
 import { Form } from '@/components/ui/form';
 import NoteTitleField from './NoteTitleField';
-
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
 import { useEffect, useState } from 'react';
 import NoteContentField from './NoteContentField';
 import WordCountBadge from './WordCountBadge';
@@ -65,7 +63,7 @@ const NoteEditor = ({
         <form
           onSubmit={form.handleSubmit(onSubmit)}
           className="h-full flex flex-col">
-          <div className="flex items-center border-b border-border ">
+          <div className="flex flex-col md:flex-row items-start md:items-center border-b border-border">
             <NoteTitleField
               form={form}
               isEditing={isEditing}
