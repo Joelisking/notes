@@ -1,80 +1,52 @@
-// import { createClient } from '@supabase/supabase-js';
-// import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import dbConnect from '@/lib/dbConnect';
 
-// // Initialize Supabase client with error handling
-// const initSupabase = () => {
-//   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-//     return null;
-//   }
+import { ApiResponse, INote, NoteInput } from '@/types';
+import Note from '@/models/Note';
+import { v4 as uuidv4 } from 'uuid';
 
-//   return createClient(
-//     process.env.NEXT_PUBLIC_SUPABASE_URL,
-//     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-//   );
-// };
+export async function GET(): Promise<
+  NextResponse<ApiResponse<INote[]>>
+> {
+  try {
+    await dbConnect();
+    const notes: INote[] = await Note.find({});
+    return NextResponse.json(
+      { success: true, data: notes },
+      { status: 200 }
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error occurred';
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 400 }
+    );
+  }
+}
 
-// const supabase = initSupabase();
-
-// export async function GET() {
-//   if (!supabase) {
-//     return NextResponse.json(
-//       {
-//         error: 'Database not configured',
-//         message: 'Please connect to Supabase using the "Connect to Supabase" button in the top right corner.'
-//       },
-//       { status: 503 }
-//     );
-//   }
-
-//   try {
-//     const { data, error } = await supabase
-//       .from('notes')
-//       .select('*')
-//       .order('created_at', { ascending: false });
-
-//     if (error) throw error;
-
-//     return NextResponse.json(data);
-//   } catch (error) {
-//     return NextResponse.json({ error: 'Failed to fetch notes' }, { status: 500 });
-//   }
-// }
-
-// export async function POST(request: Request) {
-//   if (!supabase) {
-//     return NextResponse.json(
-//       {
-//         error: 'Database not configured',
-//         message: 'Please connect to Supabase using the "Connect to Supabase" button in the top right corner.'
-//       },
-//       { status: 503 }
-//     );
-//   }
-
-//   try {
-//     const { title, content } = await request.json();
-
-//     if (!title || !content) {
-//       return NextResponse.json(
-//         { error: 'Title and content are required' },
-//         { status: 400 }
-//       );
-//     }
-
-//     const { data, error } = await supabase
-//       .from('notes')
-//       .insert([{ title, content }])
-//       .select()
-//       .single();
-
-//     if (error) throw error;
-
-//     return NextResponse.json(data);
-//   } catch (error) {
-//     return NextResponse.json(
-//       { error: 'Failed to create note' },
-//       { status: 500 }
-//     );
-//   }
-// }
-export async function GET() {}
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<ApiResponse<INote>>> {
+  try {
+    await dbConnect();
+    const body: NoteInput = await request.json();
+    const noteData = { ...body, id: uuidv4() };
+    const note: INote = await Note.create(noteData);
+    return NextResponse.json(
+      { success: true, data: note },
+      { status: 201 }
+    );
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : 'Unknown error occurred';
+    return NextResponse.json(
+      { success: false, error: errorMessage },
+      { status: 400 }
+    );
+  }
+}

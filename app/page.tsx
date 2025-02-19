@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
@@ -8,62 +8,125 @@ import { cn } from '@/lib/utils';
 import { X, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { Note, noteSchema } from '@/lib/types';
 import NoteEditor from '@/components/notes/NoteEditor';
 import EmptyState from '@/components/notes/EmptyState';
 import * as z from 'zod';
 import Sidebar from '@/components/sidebar';
+import { noteSchema } from '@/components/notes/types';
+import {
+  getNotes,
+  createNote as apiCreateNote,
+  updateNote as apiUpdateNote,
+} from '@/lib/api';
+import { INote } from '@/types';
 
 export default function Home() {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const [notes, setNotes] = useState<INote[]>([]);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(
     null
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreatingNewNote, setIsCreatingNewNote] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, setTheme } = useTheme();
 
-  const selectedNote: Note | null = selectedNoteId
+  const selectedNote: INote | null = selectedNoteId
     ? notes.find((note) => note.id === selectedNoteId) || null
     : null;
 
-  const createNote = () => {
+  const createEmptyNote = () => {
     setSelectedNoteId(null);
     setIsCreatingNewNote(true);
   };
 
-  const saveNote = (values: z.infer<typeof noteSchema>) => {
-    if (isCreatingNewNote) {
-      const newNote: Note = {
-        id: crypto.randomUUID(),
+  const createNote = async (values: z.infer<typeof noteSchema>) => {
+    try {
+      const payload = {
         title: values.title,
         content: values.content,
-        created_at: new Date().toISOString(),
       };
-      setNotes((prev) => [newNote, ...prev]);
-      setSelectedNoteId(newNote.id);
-      setIsCreatingNewNote(false);
-      toast.success('Note created successfully', {
-        position: 'bottom-right',
-      });
-    } else if (selectedNoteId) {
-      setNotes((prev) =>
-        prev.map((note) =>
-          note.id === selectedNoteId
-            ? {
-                ...note,
-                title: values.title,
-                content: values.content,
-              }
-            : note
-        )
-      );
-      toast.success('Note updated successfully', {
-        position: 'bottom-right',
-      });
+
+      const response = await apiCreateNote(payload);
+
+      if (response.success) {
+        const newNote = response.data;
+        setNotes((prev) => [newNote as INote, ...prev]);
+        if (newNote) {
+          setSelectedNoteId(newNote.id);
+        }
+        setIsCreatingNewNote(false);
+        toast.success('Note created successfully');
+      } else {
+        toast.error(`Failed to create note: ${response.error}`);
+      }
+    } catch (error) {
+      toast.error('An error occurred while creating the note');
+      console.error('Error creating note:', error);
     }
   };
+
+  const updateNote = async (values: z.infer<typeof noteSchema>) => {
+    try {
+      if (!selectedNoteId) return;
+      console.log('Selected Note Id::', selectedNoteId);
+      const updatedData = {
+        title: values.title,
+        content: values.content,
+      };
+
+      const response = await apiUpdateNote(
+        selectedNoteId,
+        updatedData
+      );
+
+      if (response.success) {
+        setNotes((prev) =>
+          prev.map((note) =>
+            note.id === selectedNoteId
+              ? {
+                  ...note,
+                  title: values.title,
+                  content: values.content,
+                }
+              : note
+          )
+        );
+        toast.success('Note updated successfully', {
+          position: 'bottom-right',
+        });
+      } else {
+        toast.error(`Failed to update note: ${response.error}`);
+      }
+    } catch (error) {
+      toast.error('An error occurred while updating the note', {
+        position: 'bottom-right',
+      });
+      console.error('Error updating note:', error);
+    }
+  };
+
+  const handleSaveNote = (values: z.infer<typeof noteSchema>) => {
+    if (isCreatingNewNote) {
+      createNote(values);
+    } else if (selectedNoteId) {
+      updateNote(values);
+    }
+  };
+
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        setLoading(true);
+        const data = await getNotes();
+        setNotes(data);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotes();
+  }, []);
 
   const filteredNotes = notes.filter(
     (note) =>
@@ -97,8 +160,9 @@ export default function Home() {
               selectedNoteId={selectedNoteId}
               setSelectedNoteId={setSelectedNoteId}
               searchQuery={searchQuery}
+              loading={loading}
               setSearchQuery={setSearchQuery}
-              createNote={createNote}
+              createNote={createEmptyNote}
               isCreatingNewNote={isCreatingNewNote}
               setSidebarOpen={setSidebarOpen}
               setIsCreatingNewNote={setIsCreatingNewNote}
@@ -121,10 +185,11 @@ export default function Home() {
                 isCreatingNewNote={isCreatingNewNote}
                 setIsCreatingNewNote={setIsCreatingNewNote}
                 setSelectedNoteId={setSelectedNoteId}
-                onSave={saveNote}
+                onSave={handleSaveNote}
+                setIsDeleteDialogOpen={() => {}}
               />
             ) : (
-              <EmptyState createNote={createNote} />
+              <EmptyState createNote={createEmptyNote} />
             )}
           </AnimatePresence>
         </div>

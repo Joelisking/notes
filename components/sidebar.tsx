@@ -1,4 +1,4 @@
-// src/components/notes/Sidebar.tsx
+'use client';
 import { motion } from 'framer-motion';
 import {
   DropdownMenu,
@@ -24,11 +24,15 @@ import {
   Moon,
   Sun,
   ChevronRight,
+  Check,
+  Laptop,
+  Loader2,
 } from 'lucide-react';
-import { Note } from '@/lib/types';
+import { INote } from '@/types';
+import { getWordCount } from '@/utils/helpers';
 
 interface SidebarProps {
-  notes: Note[];
+  notes: INote[];
   selectedNoteId: string | null;
   setSelectedNoteId: (id: string) => void;
   searchQuery: string;
@@ -37,11 +41,12 @@ interface SidebarProps {
   isCreatingNewNote: boolean;
   setIsCreatingNewNote: (creating: boolean) => void;
   setSidebarOpen: (open: boolean) => void;
+  loading: boolean;
   theme: string | undefined;
   setTheme: (theme: string) => void;
 }
 
-const Sidebar = ({
+export default function Sidebar({
   notes,
   selectedNoteId,
   setSelectedNoteId,
@@ -52,12 +57,8 @@ const Sidebar = ({
   setSidebarOpen,
   theme,
   setTheme,
-}: SidebarProps) => {
-  // Calculate word count
-  const getWordCount = (text: string) => {
-    return text.trim().split(/\s+/).filter(Boolean).length;
-  };
-
+  loading,
+}: SidebarProps) {
   return (
     <motion.div
       initial={{ width: 0, opacity: 0 }}
@@ -74,30 +75,51 @@ const Sidebar = ({
       }}>
       <div className="p-6 border-b">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <h1 className=" text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             My Notes
           </h1>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="rounded-full">
+              <Button size="icon" className="rounded-full">
                 <Settings className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
-                onClick={() =>
-                  setTheme(theme === 'dark' ? 'light' : 'dark')
-                }
-                className="cursor-pointer focus:bg-accent">
-                {theme === 'dark' ? (
-                  <Sun className="mr-2 h-4 w-4" />
-                ) : (
-                  <Moon className="mr-2 h-4 w-4" />
+                onClick={() => setTheme('light')}
+                className={cn(
+                  'cursor-pointer focus:bg-accent',
+                  theme === 'light' && 'bg-accent/50'
+                )}>
+                <Sun className="mr-2 h-4 w-4" />
+                Light Mode
+                {theme === 'light' && (
+                  <Check className="ml-auto h-4 w-4" />
                 )}
-                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme('dark')}
+                className={cn(
+                  'cursor-pointer focus:bg-accent',
+                  theme === 'dark' && 'bg-accent/50'
+                )}>
+                <Moon className="mr-2 h-4 w-4" />
+                Dark Mode
+                {theme === 'dark' && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setTheme('system')}
+                className={cn(
+                  'cursor-pointer focus:bg-accent',
+                  theme === 'system' && 'bg-accent/50'
+                )}>
+                <Laptop className="mr-2 h-4 w-4" />
+                System
+                {theme === 'system' && (
+                  <Check className="ml-auto h-4 w-4" />
+                )}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -121,7 +143,12 @@ const Sidebar = ({
         </div>
       </div>
       <ScrollArea className="flex-1">
-        {notes.length === 0 && !isCreatingNewNote ? (
+        {loading ? (
+          <div className="p-4 text-center text-muted-foreground">
+            Loading notes...
+            <Loader2 className="h-6 w-6 text-muted-foreground" />
+          </div>
+        ) : notes.length === 0 && !isCreatingNewNote ? (
           <div className="p-4 text-center text-muted-foreground">
             No notes found. Create your first note!
           </div>
@@ -180,6 +207,4 @@ const Sidebar = ({
       </ScrollArea>
     </motion.div>
   );
-};
-
-export default Sidebar;
+}
