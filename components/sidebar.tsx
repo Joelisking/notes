@@ -144,9 +144,8 @@ export default function Sidebar({
       </div>
       <ScrollArea className="flex-1">
         {loading ? (
-          <div className="p-4 text-center text-muted-foreground">
-            Loading notes...
-            <Loader2 className="h-6 w-6 text-muted-foreground" />
+          <div className="p-4 text-center text-muted-foreground flex justify-center">
+            <Loader2 className="h-6 w-6 text-muted-foreground animate-spin" />
           </div>
         ) : notes.length === 0 && !isCreatingNewNote ? (
           <div className="p-4 text-center text-muted-foreground">
