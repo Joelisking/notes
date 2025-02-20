@@ -80,7 +80,7 @@ export default function Sidebar({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" className="rounded-full">
-                <Settings className="h-5 w-5 text-foreground" />
+                <Settings className="h-5 w-5 text-background dark:text-foreground" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -134,9 +134,9 @@ export default function Sidebar({
 
       <div className="p-6 border-b">
         <Button
-          className="w-full rounded-full group transition-all hover:shadow-md hover:shadow-primary/20 text-foreground"
+          className="w-full rounded-full group transition-all hover:shadow-md hover:shadow-primary/20 text-background dark:text-foreground"
           onClick={createNote}>
-          <Plus className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+          <Plus className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform text-background dark:text-foreground" />
           New Note
         </Button>
       </div>
