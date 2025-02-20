@@ -40,8 +40,6 @@ MONGODB_URI=" mongodb://localhost:27017/your_database_name"
 for local instance of MongoDB.
 
 
-Replace the URI with your own MongoDB connection string if you’re using a remote database or a service like MongoDB Atlas.
-
 ### 4. Run the Application
 
 ```bash
