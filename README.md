@@ -130,5 +130,3 @@ This will start the development server. By default, the application will be avai
    - More polished UI, keyboard shortcuts, and possibly a WYSIWYG and markdown editor for note content.
 
 ---
-
-**Enjoy using the Notes App!** If you have any questions or suggestions, feel free to open an issue or submit a pull request.
