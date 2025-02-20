@@ -9,9 +9,7 @@ import { Button } from '@/components/ui/button';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NoteEditor from '@/components/notes/NoteEditor';
 import EmptyState from '@/components/notes/EmptyState';
-import * as z from 'zod';
 import Sidebar from '@/components/sidebar';
-import { noteSchema } from '@/components/notes/types';
 import {
   getNotes,
   createNote as apiCreateNote,
@@ -39,11 +37,12 @@ export default function Home() {
     setIsCreatingNewNote(true);
   };
 
-  const createNote = async (values: z.infer<typeof noteSchema>) => {
+  const createNote = async (note: INote) => {
     try {
       const payload = {
-        title: values.title,
-        content: values.content,
+        title: note.title,
+        content: note.content,
+        tags: note.tags ?? [],
       };
 
       const response = await apiCreateNote(payload);
@@ -65,12 +64,14 @@ export default function Home() {
     }
   };
 
-  const updateNote = async (values: z.infer<typeof noteSchema>) => {
+  const updateNote = async (updatedNote: INote) => {
     try {
       if (!selectedNoteId) return;
+
       const updatedData = {
-        title: values.title,
-        content: values.content,
+        title: updatedNote.title,
+        content: updatedNote.content,
+        tags: updatedNote.tags ?? [],
       };
 
       const response = await apiUpdateNote(
@@ -84,8 +85,7 @@ export default function Home() {
             note.id === selectedNoteId
               ? {
                   ...note,
-                  title: values.title,
-                  content: values.content,
+                  ...updatedData,
                 }
               : note
           )
@@ -110,13 +110,11 @@ export default function Home() {
     );
   };
 
-  const handleSaveNote = async (
-    values: z.infer<typeof noteSchema>
-  ): Promise<void> => {
+  const handleSaveNote = async (note: INote): Promise<void> => {
     if (isCreatingNewNote) {
-      createNote(values);
+      await createNote(note);
     } else if (selectedNoteId) {
-      updateNote(values);
+      await updateNote(note);
     }
   };
 
@@ -142,13 +140,17 @@ export default function Home() {
   const filteredNotes = notes.filter(
     (note) =>
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.content.toLowerCase().includes(searchQuery.toLowerCase())
+      note.content
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      note.tags?.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLocaleLowerCase())
+      )
   );
 
   return (
     <TooltipProvider>
       <div className="flex h-screen bg-background overflow-hidden">
-        {/* Sidebar Toggle Button (Mobile) */}
         <div className="absolute top-2 md:top-6 left-2 z-50">
           <Button
             variant="ghost"
@@ -163,7 +165,6 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Sidebar */}
         <AnimatePresence>
           {sidebarOpen && (
             <Sidebar
@@ -183,7 +184,6 @@ export default function Home() {
           )}
         </AnimatePresence>
 
-        {/* Main Content */}
         <div
           className={cn(
             'flex-1 overflow-auto transition-all duration-200 px-6 py-16 md:py-6 md:px-14',

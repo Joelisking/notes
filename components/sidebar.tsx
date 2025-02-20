@@ -72,7 +72,6 @@ export default function Sidebar({
         top: 0,
         bottom: 0,
       }}>
-      {/* Header */}
       <div className="p-6 border-b flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold text-primary">
           My Notes
@@ -123,7 +122,6 @@ export default function Sidebar({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {/* Mobile Close Button */}
           <Button
             variant="ghost"
             size="icon"
@@ -134,7 +132,6 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* New Note Button */}
       <div className="p-6 border-b">
         <Button
           className="w-full rounded-full group transition-all hover:shadow-md hover:shadow-primary/20 text-foreground"
@@ -144,7 +141,6 @@ export default function Sidebar({
         </Button>
       </div>
 
-      {/* Search */}
       <div className="p-4 border-b">
         <div className="relative">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -157,7 +153,6 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Notes List */}
       <ScrollArea className="flex-1 pt-6">
         {loading ? (
           <div className="p-4 text-center text-muted-foreground flex justify-center">
@@ -198,6 +193,14 @@ export default function Sidebar({
                   <p className="text-sm text-muted-foreground truncate mt-1">
                     {note.content}
                   </p>
+                  {note.tags && note.tags.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
+                      <span className="font-bold text-white">
+                        Tags:
+                      </span>{' '}
+                      {note.tags.join(', ')}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 mt-2">
                     <Badge
                       variant="outline"

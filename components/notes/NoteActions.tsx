@@ -5,6 +5,7 @@ import { UseFormReturn } from 'react-hook-form';
 import ConfirmDeleteDialog from '../ConfirmDeleteDialog';
 import { deleteNote } from '@/lib/api';
 import { INote, NoteInput } from '@/types';
+import { toast } from 'sonner';
 
 interface Props {
   form: UseFormReturn<NoteInput, undefined>;
@@ -41,11 +42,12 @@ const NoteActions = ({
         // Update the local state to remove the deleted note.
         onDelete(selectedNote.id);
         setSelectedNoteId(null);
+        toast.success('Note succesfully deleted');
       } else {
-        alert('Failed to delete note: ' + data.error);
+        toast.error('Failed to delete note: ' + data.error);
       }
     } catch (error) {
-      alert('Error deleting note');
+      toast.error('Error deleting note');
       console.error('Error:', error);
     } finally {
       setIsDeleting(false);

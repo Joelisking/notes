@@ -10,7 +10,7 @@ export interface INote {
 export interface NoteInput {
   title: string;
   content: string;
-  tags?: string[];
+  tags: string[];
 }
 
 export interface ApiResponse<T> {

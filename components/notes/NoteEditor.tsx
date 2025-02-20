@@ -9,6 +9,7 @@ import WordCountBadge from './WordCountBadge';
 import { NoteRequestDto, noteSchema } from './types';
 import NoteActions from './NoteActions';
 import { INote, NoteInput } from '@/types';
+import NoteTagsField from './NoteTagsField';
 
 interface NoteEditorProps {
   selectedNote: INote | null;
@@ -32,7 +33,11 @@ const NoteEditor = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<NoteInput>({
     resolver: zodResolver(noteSchema),
-    defaultValues: { title: '', content: '' },
+    defaultValues: {
+      title: '',
+      content: '',
+      tags: [], // Must be an array
+    },
   });
 
   useEffect(() => {
@@ -97,6 +102,12 @@ const NoteEditor = ({
               />
             </div>
           </div>
+
+          <NoteTagsField
+            form={form}
+            isEditing={isEditing}
+            isCreatingNewNote={isCreatingNewNote}
+          />
           <NoteContentField
             form={form}
             isEditing={isEditing}
