@@ -39,10 +39,8 @@ MONGODB_URI=" mongodb://localhost:27017/your_database_name"
 ```
 for local instance of MongoDB.
 
-This is the connection string for an already prepared database for testing purposes:
-```
-MONGODB_URI=mongodb+srv://adujoel7:cLI1sXVl4spiv0N0@cluster0.tt7as.mongodb.net/test
-```
+Refer to the documentation for an already set up MONGODB URI for testing purposes.
+
 This URI is not to be shared, but for internal testing only.
 
 ### 4. Run the Application
